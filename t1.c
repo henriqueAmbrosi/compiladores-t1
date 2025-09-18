@@ -375,10 +375,71 @@ int S(char S_hp[MAX_COD], char S_sp[MAX_COD], char S_hc[MAX_COD], char S_sc[MAX_
 int E(char E_p[MAX_COD], char E_c[MAX_COD]);
 int R(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD]);
 int F(char F_p[MAX_COD], char F_c[MAX_COD]);
+int RelationalExpression(char E_p[MAX_COD], char E_c[MAX_COD]);
+int RelationalExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD]);
 int Command(char Com_c[MAX_COD]);
 int CommandList(char Com_c[MAX_COD]);
 int Expression(char e_p[MAX_COD], char e_c[MAX_COD]);
 
+
+
+int RelationalExpression(char E_p[MAX_COD], char E_c[MAX_COD])
+{
+   char T_p[MAX_COD], T_c[MAX_COD], R_hp[MAX_COD], R_sp[MAX_COD], R_hc[MAX_COD], R_sc[MAX_COD];
+
+   if (E(T_p, T_c))
+   {
+      strcpy(R_hc, T_c);
+      strcpy(R_hp, T_p);
+      if (RelationalExpressionRest(R_hp, R_sp, R_hc, R_sc))
+      {
+         strcpy(E_c, R_sc);
+         strcpy(E_p, R_sp);
+         return 1;
+      }
+   }
+   return 0;
+}
+
+int RelationalExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD])
+{
+   char T_c[MAX_COD], R1_hc[MAX_COD], R1_sc[MAX_COD], T_p[MAX_COD], R1_hp[MAX_COD], R1_sp[MAX_COD];
+   if (token == TK_Maior)
+   {
+      token = le_token();
+      if (E(T_p, T_c))
+      {
+         geratemp(R1_hp);
+         sprintf(R1_hc, "%s%s\t%s=%s>%s\n", R_hc, T_c, R1_hp, R_hp, T_p);
+         if (RelationalExpressionRest(R1_hp, R1_sp, R1_hc, R1_sc))
+         {
+            strcpy(R_sp, R1_sp);
+            strcpy(R_sc, R1_sc);
+            return 1;
+         }
+      }
+      return 0;
+   }
+   if (token == TK_Menor)
+   {
+      token = le_token();
+      if (E(T_p, T_c))
+      {
+         geratemp(R1_hp);
+         sprintf(R1_hc, "%s%s\t%s=%s<%s\n", R_hc, T_c, R1_hp, R_hp, T_p);
+         if (R(R1_hp, R1_sp, R1_hc, R1_sc))
+         {
+            strcpy(R_sp, R1_sp);
+            strcpy(R_sc, R1_sc);
+            return 1;
+         }
+      }
+      return 0;
+   }
+   strcpy(R_sp, R_hp);
+   strcpy(R_sc, R_hc);
+   return 1;
+}
 
 // E -> E1 + T {E.cod=....}
 // E -> T { Rhp=Tp   Rhc=Tc}  R   {E.p=RSp   E.c=Rsc}
@@ -387,7 +448,6 @@ int Expression(char e_p[MAX_COD], char e_c[MAX_COD]);
 int E(char E_p[MAX_COD], char E_c[MAX_COD])
 {
    char T_p[MAX_COD], T_c[MAX_COD], R_hp[MAX_COD], R_sp[MAX_COD], R_hc[MAX_COD], R_sc[MAX_COD];
-   printf("Entrei no E\n");
    if (T(T_p, T_c))
    {
       strcpy(R_hc, T_c);
@@ -680,7 +740,7 @@ int CommandExpression(char Com_p[MAX_COD], char Com_c[MAX_COD])
 
 int Expression(char e_p[MAX_COD], char e_c[MAX_COD]){
    char e1_c[MAX_COD];
-   if(E(e_p, e_c)){
+   if(RelationalExpression(e_p, e_c)){
       if(token == TK_virgula){
          token = le_token();
          if(Expression(e_p, e1_c)){

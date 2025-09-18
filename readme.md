@@ -1,6 +1,5 @@
 Items faltantes no trabalho
 - reconhecer atribuição
-- reconhecer comparação de >
 
 Objetivo:
 
