@@ -1,23 +1,24 @@
 	T000 = 0
 	i = T000
-
-	T001 = 0
-	j = T001
 	goto LB001
 LB002:
-	T004 = 1
-	T005=i+T004
-	i = T005
+	T003 = 1
+	T004=i+T003
+	i = T004
 LB001:
-	T002 = 10
-	T003=i<T002
-	if T003 == 0
+	T001 = 10
+	T002=i<T001
+	if T002 == 0
 	goto LB000
-	T006 = 1
-	T007=b+T006
-	a = T007
-	T008=c+d
-	c = T008
+LB004:
+	T005=a>b
+	if T005 == 0
+	goto LB003
+	T006=l+m
+	l = T006
+	goto LB004
+	goto LB004
+LB003:
 	goto LB002
 LB000:
 

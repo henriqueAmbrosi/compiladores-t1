@@ -1,12 +1,3 @@
-Items faltantes no trabalho
-- break
-- continue
+Por: Henrique Molinari Ambrosi e Bruno Falcade Paese
 
-Objetivo:
-
-Reconhecer essa expressão
-```
-for (i=0,j=0; i<10;i=i+1)
-
-   {a=b+1; c=c+d;}
-```
+Para rodar, use o comando `./t1`. Ele utilizará um arquivo chamado `prog.cpp` como input e um arquivo `saida.kvmp` como output além de mostrar o output no console.

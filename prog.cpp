@@ -1,3 +1,8 @@
-for (i=0,j=0; i<10;i=i+1)
+for (i=0; i<10;i=i+1)
 
-   {a=b+1; c=c+d;}
+   {
+    while(a>b){
+        l=l+m;
+        continue;
+    }
+}

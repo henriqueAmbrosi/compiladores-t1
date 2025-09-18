@@ -37,6 +37,8 @@
 #define TK_or_logico 31
 #define TK_do 32
 #define TK_for 33
+#define TK_break 34
+#define TK_continue 35
 
 
 /***********************************************************************************/
@@ -82,6 +84,8 @@ char tokens[][20] = {"", "TK_int",
                      "TK_or_logico",
                      "TK_do",
                      "TK_for",
+                     "TK_break",
+                     "TK_continue",
                   };
 
 
@@ -100,6 +104,8 @@ tpal reservadas[] = {{"", 0},
                      {"while", TK_while},
                      {"do", TK_do},
                      {"for", TK_for},
+                     {"break", TK_break},
+                     {"continue", TK_continue},
                      {"fim", -1}};
 
 
@@ -342,6 +348,12 @@ int le_token()
 
 #define MAX_COD 1000
 
+typedef struct context
+{
+   char breakLabel[MAX_COD];
+   char continueLabel[MAX_COD];
+} ctx;
+
 
 void mostra_t()
 {
@@ -378,8 +390,8 @@ int PrimaryExpression(char F_p[MAX_COD], char F_c[MAX_COD]);
 int RelationalExpression(char E_p[MAX_COD], char E_c[MAX_COD]);
 int RelationalExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD]);
 int AssignmentExpression(char A_p[MAX_COD], char A_c[MAX_COD]);
-int Command(char Com_c[MAX_COD]);
-int CommandList(char Com_c[MAX_COD]);
+int Command(char Com_c[MAX_COD], ctx context);
+int CommandList(char Com_c[MAX_COD], ctx context);
 int Expression(char e_p[MAX_COD], char e_c[MAX_COD]);
 
 int AssignmentExpression(char A_p[MAX_COD], char A_c[MAX_COD]){
@@ -612,7 +624,7 @@ int PrimaryExpression(char F_p[MAX_COD], char F_c[MAX_COD])
 }
 
 
-int ComposedExpression(char Comp_c[MAX_COD])
+int ComposedExpression(char Comp_c[MAX_COD], ctx context)
 {
    char Com_cod[MAX_COD];
    if (token == TK_Abre_Chaves)
@@ -626,7 +638,7 @@ int ComposedExpression(char Comp_c[MAX_COD])
       }
 
 
-      if (CommandList(Com_cod))
+      if (CommandList(Com_cod, context))
       {
          if (token == TK_Fecha_Chaves)
          {
@@ -643,7 +655,7 @@ int ComposedExpression(char Comp_c[MAX_COD])
 }
 
 
-int IfExpression(char If_c[MAX_COD])
+int IfExpression(char If_c[MAX_COD], ctx context)
 {
    char labelFinal[MAX_COD], labelElse[MAX_COD];
    geralabel(labelFinal);
@@ -661,9 +673,10 @@ int IfExpression(char If_c[MAX_COD])
             {
                token = le_token();
                char E2_cod[MAX_COD];
-               if (Command(E2_cod))
+               if (Command(E2_cod, context))
                {
-                  sprintf(If_c, "\tif %s == 0\n", E_p);
+                  sprintf(If_c, "%s", E_cod);
+                  sprintf(If_c, "%s\tif %s == 0\n", If_c, E_p);
                   sprintf(If_c, "%s\tgoto %s\n", If_c, labelElse);
                   sprintf(If_c, "%s%s", If_c, E2_cod);
                   sprintf(If_c, "%s\tgoto %s\n", If_c, labelFinal);
@@ -674,7 +687,7 @@ int IfExpression(char If_c[MAX_COD])
 
 
                      char E3_cod[MAX_COD];
-                     if (Command(E3_cod))
+                     if (Command(E3_cod, context))
                      {
 
 
@@ -701,6 +714,11 @@ int WhileExpression(char Com_c[MAX_COD])
    char labelFinal[MAX_COD], labelLaco[MAX_COD];
    geralabel(labelFinal);
    geralabel(labelLaco);
+   ctx context;
+   
+   strcpy(context.breakLabel, labelFinal);
+   strcpy(context.continueLabel, labelLaco);
+
    if (token == TK_while)
    {
       token = le_token();
@@ -714,11 +732,13 @@ int WhileExpression(char Com_c[MAX_COD])
             {
                token = le_token();
                char E2_cod[MAX_COD];
-               if (Command(E2_cod))
+               if (Command(E2_cod, context))
                {
-                  sprintf(Com_c, "%s:%s == 0\n", labelLaco, E_p);
+                  sprintf(Com_c, "%s:\n", labelLaco);
+                  sprintf(Com_c, "%s%s", Com_c, E_cod);
+                  sprintf(Com_c, "%s\tif %s == 0\n", Com_c, E_p);
                   sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelFinal);
-                  sprintf(Com_c, "%sif %s == 0", Com_c, E2_cod);
+                  sprintf(Com_c, "%s%s", Com_c, E2_cod);
                   sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelLaco);
                   sprintf(Com_c, "%s%s:\n", Com_c, labelFinal);
                   return 1;
@@ -779,12 +799,12 @@ int Expression(char e_p[MAX_COD], char e_c[MAX_COD]){
 }
 
 
-int CommandList(char Com_c[MAX_COD]){
+int CommandList(char Com_c[MAX_COD], ctx context){
    char Command_c[MAX_COD], CommandList_c[MAX_COD];
-   if(Command(Command_c)){
+   if(Command(Command_c, context)){
       sprintf(Com_c, "%s", Command_c);
       marca_pos();
-      if(CommandList(CommandList_c)){
+      if(CommandList(CommandList_c, context)){
          sprintf(Com_c, "%s%s", Com_c, CommandList_c);
          return 1;
       }
@@ -803,6 +823,11 @@ int ForExpression(char Com_c[MAX_COD]){
    geralabel(labelCondicao);
    geralabel(labelContinue);
 
+   ctx context;
+   
+   strcpy(context.breakLabel, labelFinal);
+   strcpy(context.continueLabel, labelContinue);
+
    if(token == TK_for){
       token = le_token();
       if(token == TK_Abre_Par){
@@ -812,7 +837,7 @@ int ForExpression(char Com_c[MAX_COD]){
 
                if(token == TK_Fecha_Par){
                   token = le_token();
-                  if(Command(command_c)){
+                  if(Command(command_c, context)){
                      sprintf(Com_c, "%s", ce1_c);
                      sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelCondicao);
                      sprintf(Com_c, "%s%s:\n", Com_c, labelContinue);
@@ -838,7 +863,7 @@ int ForExpression(char Com_c[MAX_COD]){
                if(Expression(e_p, e_c)){
                   if(token == TK_Fecha_Par){
                      token = le_token();
-                     if(Command(command_c)){
+                     if(Command(command_c, context)){
                         sprintf(Com_c, "%s", ce1_c);
                         sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelCondicao);
                         sprintf(Com_c, "%s%s:\n", Com_c, labelContinue);
@@ -866,18 +891,47 @@ int ForExpression(char Com_c[MAX_COD]){
    return 0;
 }
 
+int JumpExpression(char Com_c[MAX_COD], ctx context){
 
-int Command(char Com_c[MAX_COD])
+   if(context.breakLabel == NULL){
+      printf("Error: %s is not valid here", lex);
+      return 0;
+   }
+
+   marca_pos();
+   if(token == TK_break){
+      token = le_token();
+      if(token == TK_pv){
+         token = le_token();
+         sprintf(Com_c, "\tgoto %s\n", context.breakLabel);
+         return 1;
+      }
+   }
+   restaura();
+   if(token == TK_continue){
+      token = le_token();
+      if(token == TK_pv){
+         token = le_token();
+         sprintf(Com_c, "\tgoto %s\n", context.continueLabel);
+         return 1;
+      }
+   }
+   return 0;
+}
+
+int Command(char Com_c[MAX_COD], ctx context)
 {
    // if(token == TK_do) return ComDoWhile else
    if (token == TK_if)
-      return IfExpression(Com_c);
+      return IfExpression(Com_c, context);
    else if (token == TK_Abre_Chaves)
-      return ComposedExpression(Com_c);
+      return ComposedExpression(Com_c, context);
    else if (token == TK_while)
       return WhileExpression(Com_c);
    else if (token == TK_for)
       return ForExpression(Com_c);
+   else if (token == TK_continue || token == TK_break)
+      return JumpExpression(Com_c, context);
 
 
    char Com_p[MAX_COD];
@@ -888,6 +942,7 @@ int Command(char Com_c[MAX_COD])
 int main()
 {
    FILE *arqout;
+   ctx context;
    char Com_c[MAX_COD];
    if ((arqin = fopen("./prog.cpp", "rt")) == NULL)
    {
@@ -901,7 +956,7 @@ int main()
    }
    token = le_token();
    char If_cod[MAX_COD];
-   if (Command(If_cod) == 0)
+   if (Command(If_cod, context) == 0)
       printf("Erro no comando!!!\n");
    else
    {
