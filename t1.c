@@ -377,11 +377,32 @@ int AdditiveExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX
 int PrimaryExpression(char F_p[MAX_COD], char F_c[MAX_COD]);
 int RelationalExpression(char E_p[MAX_COD], char E_c[MAX_COD]);
 int RelationalExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD]);
+int AssignmentExpression(char A_p[MAX_COD], char A_c[MAX_COD]);
 int Command(char Com_c[MAX_COD]);
 int CommandList(char Com_c[MAX_COD]);
 int Expression(char e_p[MAX_COD], char e_c[MAX_COD]);
 
+int AssignmentExpression(char A_p[MAX_COD], char A_c[MAX_COD]){
+   char A1_c[MAX_COD], A1_p[MAX_COD]; 
+   marca_pos();
+   if(token == TK_id){
+      strcpy(A_p, lex);
+      token = le_token();
+      if(token == TK_Atrib){
+         token = le_token();
+         if(AssignmentExpression(A1_p, A1_c)){
+            sprintf(A_c, "%s\t%s = %s\n", A1_c, A_p, A1_p);
+            return 1;
+         }
+      }
+   }
+   restaura();
+   if(RelationalExpression(A_p, A_c)){
+      return 1;
+   }
 
+   return 0;
+}
 
 int RelationalExpression(char E_p[MAX_COD], char E_c[MAX_COD])
 {
@@ -571,7 +592,7 @@ int PrimaryExpression(char F_p[MAX_COD], char F_c[MAX_COD])
    {
       char E_c[MAX_COD], E_p[MAX_COD];
       token = le_token();
-      if (RelationalExpression(E_p, E_c))
+      if (AssignmentExpression(E_p, E_c))
          if (token == TK_Fecha_Par)
          {
             token = le_token();
@@ -740,7 +761,7 @@ int CommandExpression(char Com_p[MAX_COD], char Com_c[MAX_COD])
 
 int Expression(char e_p[MAX_COD], char e_c[MAX_COD]){
    char e1_c[MAX_COD];
-   if(RelationalExpression(e_p, e_c)){
+   if(AssignmentExpression(e_p, e_c)){
       if(token == TK_virgula){
          token = le_token();
          if(Expression(e_p, e1_c)){

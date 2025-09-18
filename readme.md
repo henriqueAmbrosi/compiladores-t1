@@ -1,5 +1,6 @@
 Items faltantes no trabalho
-- reconhecer atribuição
+- break
+- continue
 
 Objetivo:
 
