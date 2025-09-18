@@ -1,3 +1,3 @@
-for(a+b;c-d;){
-    h+1
+for(a+b;c-d;i+3){
+    h+1;
 }

@@ -2,10 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-
-// pag 222 - For do C
-
-
 #define TK_int 1
 #define TK_float 2
 #define TK_char 3
@@ -719,8 +715,13 @@ int ForExpression(char Com_c[MAX_COD]){
                      // sprintf(Com_c, "%s%s", Com_c, e_c);
                      sprintf(Com_c, "%s%s:\n", Com_c, labelCondicao);
                      sprintf(Com_c, "%s%s", Com_c, ce2_c);
-                     sprintf(Com_c, "%s\tif %s == 0\n", Com_c, ce2_p);
-                     sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelFinal);
+                     
+                     // Implementa os laços infinitos
+                     if(strlen(ce2_p) != 0){
+                        sprintf(Com_c, "%s\tif %s == 0\n", Com_c, ce2_p);
+                        sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelFinal);
+                     }
+
                      sprintf(Com_c, "%s%s\n", Com_c, command_c);
                      sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelContinue);
                      sprintf(Com_c, "%s%s:\n", Com_c, labelFinal);
@@ -740,8 +741,11 @@ int ForExpression(char Com_c[MAX_COD]){
                         sprintf(Com_c, "%s%s", Com_c, e_c);
                         sprintf(Com_c, "%s%s:\n", Com_c, labelCondicao);
                         sprintf(Com_c, "%s%s", Com_c, ce2_c);
-                        sprintf(Com_c, "%s\tif %s == 0\n", Com_c, ce2_p);
-                        sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelFinal);
+                        // Implementa os laços infinitos
+                        if(strlen(ce2_p) != 0){
+                           sprintf(Com_c, "%s\tif %s == 0\n", Com_c, ce2_p);
+                           sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelFinal);
+                        }
                         sprintf(Com_c, "%s%s", Com_c, command_c);
                         sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelContinue);
                         sprintf(Com_c, "%s%s:\n", Com_c, labelFinal);
@@ -798,6 +802,7 @@ int main()
    else
    {
       printf("%s\n", If_cod);
+      fprintf(arqout, "%s\n", If_cod);
    }
    fclose(arqin);
    fclose(arqout);

@@ -1,0 +1,14 @@
+	T000=a+b
+	goto LB001
+LB002:
+	T002 = 3
+	T003=i+T002
+LB001:
+	T001=c-d
+	if T001 == 0
+	goto LB000
+	T004 = 1
+	T005=h+T004
+	goto LB002
+LB000:
+
