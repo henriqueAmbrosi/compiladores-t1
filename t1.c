@@ -377,6 +377,7 @@ int R(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_
 int F(char F_p[MAX_COD], char F_c[MAX_COD]);
 int Command(char Com_c[MAX_COD]);
 int CommandList(char Com_c[MAX_COD]);
+int Expression(char e_p[MAX_COD], char e_c[MAX_COD]);
 
 
 // E -> E1 + T {E.cod=....}
@@ -573,7 +574,7 @@ int IfExpression(char If_c[MAX_COD])
       {
          token = le_token();
          char E_p[MAX_COD], E_cod[MAX_COD];
-         if (E(E_p, E_cod))
+         if (Expression(E_p, E_cod))
          {
             if (token == TK_Fecha_Par)
             {
@@ -626,7 +627,7 @@ int WhileExpression(char Com_c[MAX_COD])
       {
          token = le_token();
          char E_p[MAX_COD], E_cod[MAX_COD];
-         if (E(E_p, E_cod))
+         if (Expression(E_p, E_cod))
          {
             if (token == TK_Fecha_Par)
             {
@@ -661,7 +662,7 @@ int CommandExpression(char Com_p[MAX_COD], char Com_c[MAX_COD])
    }
 
 
-   if (E(E_p, E_cod))
+   if (Expression(E_p, E_cod))
    {
       if (token == TK_pv)
       {
@@ -677,18 +678,40 @@ int CommandExpression(char Com_p[MAX_COD], char Com_c[MAX_COD])
    return 0;
 }
 
+int Expression(char e_p[MAX_COD], char e_c[MAX_COD]){
+   char e1_c[MAX_COD];
+   if(E(e_p, e_c)){
+      if(token == TK_virgula){
+         token = le_token();
+         if(Expression(e_p, e1_c)){
+            sprintf(e_c, "%s\n%s", e_c, e1_c);
+            return 1;
+         }
+
+         return 0;
+      }
+
+      return 1;
+   }
+
+   return 0;
+}
+
 
 int CommandList(char Com_c[MAX_COD]){
    char Command_c[MAX_COD], CommandList_c[MAX_COD];
    if(Command(Command_c)){
       sprintf(Com_c, "%s", Command_c);
+      marca_pos();
       if(CommandList(CommandList_c)){
          sprintf(Com_c, "%s%s", Com_c, CommandList_c);
          return 1;
       }
+      restaura();
+      return 1;
    }
    
-   return 1;
+   return 0;
 
 
 }
@@ -712,7 +735,7 @@ int ForExpression(char Com_c[MAX_COD]){
                      sprintf(Com_c, "%s", ce1_c);
                      sprintf(Com_c, "%s\tgoto %s\n", Com_c, labelCondicao);
                      sprintf(Com_c, "%s%s:\n", Com_c, labelContinue);
-                     // sprintf(Com_c, "%s%s", Com_c, e_c);
+                     // sprintf(Com_c, "%s%s", Com_c, e_c); Sem expressão para rodar a cada iteração
                      sprintf(Com_c, "%s%s:\n", Com_c, labelCondicao);
                      sprintf(Com_c, "%s%s", Com_c, ce2_c);
                      
@@ -731,7 +754,7 @@ int ForExpression(char Com_c[MAX_COD]){
                   }
                }
 
-               if(E(e_p, e_c)){
+               if(Expression(e_p, e_c)){
                   if(token == TK_Fecha_Par){
                      token = le_token();
                      if(Command(command_c)){
