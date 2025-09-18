@@ -370,11 +370,11 @@ void geratemp(char temp[])
 /****************/
 
 
-int T(char T_p[MAX_COD], char T_c[MAX_COD]);
-int S(char S_hp[MAX_COD], char S_sp[MAX_COD], char S_hc[MAX_COD], char S_sc[MAX_COD]);
-int E(char E_p[MAX_COD], char E_c[MAX_COD]);
-int R(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD]);
-int F(char F_p[MAX_COD], char F_c[MAX_COD]);
+int MultiplicativeExpression(char T_p[MAX_COD], char T_c[MAX_COD]);
+int MultiplicativeExpressionRest(char S_hp[MAX_COD], char S_sp[MAX_COD], char S_hc[MAX_COD], char S_sc[MAX_COD]);
+int AdditiveExpression(char E_p[MAX_COD], char E_c[MAX_COD]);
+int AdditiveExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD]);
+int PrimaryExpression(char F_p[MAX_COD], char F_c[MAX_COD]);
 int RelationalExpression(char E_p[MAX_COD], char E_c[MAX_COD]);
 int RelationalExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD]);
 int Command(char Com_c[MAX_COD]);
@@ -387,7 +387,7 @@ int RelationalExpression(char E_p[MAX_COD], char E_c[MAX_COD])
 {
    char T_p[MAX_COD], T_c[MAX_COD], R_hp[MAX_COD], R_sp[MAX_COD], R_hc[MAX_COD], R_sc[MAX_COD];
 
-   if (E(T_p, T_c))
+   if (AdditiveExpression(T_p, T_c))
    {
       strcpy(R_hc, T_c);
       strcpy(R_hp, T_p);
@@ -407,7 +407,7 @@ int RelationalExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[M
    if (token == TK_Maior)
    {
       token = le_token();
-      if (E(T_p, T_c))
+      if (AdditiveExpression(T_p, T_c))
       {
          geratemp(R1_hp);
          sprintf(R1_hc, "%s%s\t%s=%s>%s\n", R_hc, T_c, R1_hp, R_hp, T_p);
@@ -423,11 +423,11 @@ int RelationalExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[M
    if (token == TK_Menor)
    {
       token = le_token();
-      if (E(T_p, T_c))
+      if (AdditiveExpression(T_p, T_c))
       {
          geratemp(R1_hp);
          sprintf(R1_hc, "%s%s\t%s=%s<%s\n", R_hc, T_c, R1_hp, R_hp, T_p);
-         if (R(R1_hp, R1_sp, R1_hc, R1_sc))
+         if (RelationalExpressionRest(R1_hp, R1_sp, R1_hc, R1_sc))
          {
             strcpy(R_sp, R1_sp);
             strcpy(R_sc, R1_sc);
@@ -445,14 +445,14 @@ int RelationalExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[M
 // E -> T { Rhp=Tp   Rhc=Tc}  R   {E.p=RSp   E.c=Rsc}
 
 
-int E(char E_p[MAX_COD], char E_c[MAX_COD])
+int AdditiveExpression(char E_p[MAX_COD], char E_c[MAX_COD])
 {
    char T_p[MAX_COD], T_c[MAX_COD], R_hp[MAX_COD], R_sp[MAX_COD], R_hc[MAX_COD], R_sc[MAX_COD];
-   if (T(T_p, T_c))
+   if (MultiplicativeExpression(T_p, T_c))
    {
       strcpy(R_hc, T_c);
       strcpy(R_hp, T_p);
-      if (R(R_hp, R_sp, R_hc, R_sc))
+      if (AdditiveExpressionRest(R_hp, R_sp, R_hc, R_sc))
       {
          strcpy(E_c, R_sc);
          strcpy(E_p, R_sp);
@@ -463,18 +463,18 @@ int E(char E_p[MAX_COD], char E_c[MAX_COD])
 }
 
 
-int R(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD])
+int AdditiveExpressionRest(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_COD])
 {
    char T_c[MAX_COD], R1_hc[MAX_COD], R1_sc[MAX_COD], T_p[MAX_COD], R1_hp[MAX_COD], R1_sp[MAX_COD];
    if (token == TK_Mais)
    {
       token = le_token();
-      if (T(T_p, T_c))
+      if (MultiplicativeExpression(T_p, T_c))
       {
          geratemp(R1_hp);
          // gen(+,R1hp,Rhp,Tp)
          sprintf(R1_hc, "%s%s\t%s=%s+%s\n", R_hc, T_c, R1_hp, R_hp, T_p);
-         if (R(R1_hp, R1_sp, R1_hc, R1_sc))
+         if (AdditiveExpressionRest(R1_hp, R1_sp, R1_hc, R1_sc))
          {
             strcpy(R_sp, R1_sp);
             strcpy(R_sc, R1_sc);
@@ -486,11 +486,11 @@ int R(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_
    if (token == TK_Menos)
    {
       token = le_token();
-      if (T(T_p, T_c))
+      if (MultiplicativeExpression(T_p, T_c))
       {
          geratemp(R1_hp);
          sprintf(R1_hc, "%s%s\t%s=%s-%s\n", R_hc, T_c, R1_hp, R_hp, T_p);
-         if (R(R1_hp, R1_sp, R1_hc, R1_sc))
+         if (AdditiveExpressionRest(R1_hp, R1_sp, R1_hc, R1_sc))
          {
             strcpy(R_sp, R1_sp);
             strcpy(R_sc, R1_sc);
@@ -505,14 +505,14 @@ int R(char R_hp[MAX_COD], char R_sp[MAX_COD], char R_hc[MAX_COD], char R_sc[MAX_
 }
 
 
-int T(char T_p[MAX_COD], char T_c[MAX_COD])
+int MultiplicativeExpression(char T_p[MAX_COD], char T_c[MAX_COD])
 {
    char F_c[MAX_COD], F_p[MAX_COD], S_hp[MAX_COD], S_sp[MAX_COD], S_hc[MAX_COD], S_sc[MAX_COD];
-   if (F(F_p, F_c))
+   if (PrimaryExpression(F_p, F_c))
    {
       strcpy(S_hc, F_c);
       strcpy(S_hp, F_p);
-      if (S(S_hp, S_sp, S_hc, S_sc))
+      if (MultiplicativeExpressionRest(S_hp, S_sp, S_hc, S_sc))
       {
          strcpy(T_c, S_sc);
          strcpy(T_p, S_sp);
@@ -523,17 +523,17 @@ int T(char T_p[MAX_COD], char T_c[MAX_COD])
 }
 
 
-int S(char S_hp[MAX_COD], char S_sp[MAX_COD], char S_hc[MAX_COD], char S_sc[MAX_COD])
+int MultiplicativeExpressionRest(char S_hp[MAX_COD], char S_sp[MAX_COD], char S_hc[MAX_COD], char S_sc[MAX_COD])
 {
    char F_c[MAX_COD], S1_hc[MAX_COD], S1_sc[MAX_COD], F_p[MAX_COD], S1_hp[MAX_COD], S1_sp[MAX_COD];
    if (token == TK_Mult)
    {
       token = le_token();
-      if (F(F_p, F_c))
+      if (PrimaryExpression(F_p, F_c))
       {
          geratemp(S1_hp);
          sprintf(S1_hc, "%s%s\t%s=%s*%s\n", S_hc, F_c, S1_hp, S_hp, F_p);
-         if (S(S1_hp, S1_sp, S1_hc, S1_sc))
+         if (MultiplicativeExpressionRest(S1_hp, S1_sp, S1_hc, S1_sc))
          {
             strcpy(S_sp, S1_sp);
             strcpy(S_sc, S1_sc);
@@ -549,7 +549,7 @@ int S(char S_hp[MAX_COD], char S_sp[MAX_COD], char S_hc[MAX_COD], char S_sc[MAX_
 // F->id
 // F->cte
 // F->(E)
-int F(char F_p[MAX_COD], char F_c[MAX_COD])
+int PrimaryExpression(char F_p[MAX_COD], char F_c[MAX_COD])
 {
 
 
@@ -571,7 +571,7 @@ int F(char F_p[MAX_COD], char F_c[MAX_COD])
    {
       char E_c[MAX_COD], E_p[MAX_COD];
       token = le_token();
-      if (E(E_p, E_c))
+      if (RelationalExpression(E_p, E_c))
          if (token == TK_Fecha_Par)
          {
             token = le_token();
@@ -600,7 +600,7 @@ int ComposedExpression(char Comp_c[MAX_COD])
       if (token == TK_Fecha_Chaves)
       {
          token = le_token();
-         sprintf(Comp_c, "");
+         Comp_c[0] = '\0';
          return 1;
       }
 
