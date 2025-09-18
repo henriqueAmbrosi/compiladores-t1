@@ -893,8 +893,8 @@ int ForExpression(char Com_c[MAX_COD]){
 
 int JumpExpression(char Com_c[MAX_COD], ctx context){
 
-   if(context.breakLabel == NULL){
-      printf("Error: %s is not valid here", lex);
+   if(strlen(context.breakLabel) == 0){
+      printf("Error: %s is not valid outside for and while\n", lex);
       return 0;
    }
 
@@ -943,6 +943,8 @@ int main()
 {
    FILE *arqout;
    ctx context;
+   context.breakLabel[0] = '\0'; 
+   context.continueLabel[0] = '\0'; 
    char Com_c[MAX_COD];
    if ((arqin = fopen("./prog.cpp", "rt")) == NULL)
    {
